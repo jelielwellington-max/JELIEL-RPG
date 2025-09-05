@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Meu Site de RPG</title>
+</head>
+<body>
+  <h1>Bem-vindo ao meu RPG!</h1>
+  <p>Esse é o começo do site.</p>
+</body>
+</html>
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <h1>Bem-vindo ao meu RPG!</h1>
+
+  <h2>Rolar Dados</h2>
+  <label>Quantidade: </label>
+  <input type="number" id="quantidade" value="1" min="1">
+
+  <label>Dado: </label>
+  <select id="tipoDado">
+    <option value="4">d4</option>
+    <option value="6">d6</option>
+    <option value="8">d8</option>
+    <option value="10">d10</option>
+    <option value="12">d12</option>
+    <option value="20" selected>d20</option>
+    <option value="100">d100</option>
+  </select>
+
+  <button onclick="rolarDados()">Rolar</button>
+  <button onclick="limparHistorico()">Excluir histórico de dados</button>
+
+  <h3>Resultado da última rolagem:</h3>
+  <p id="resultado"></p>
+
+  <h3>Histórico:</h3>
+  <ul id="historico"></ul>
+
+  <script>
+    function rolarDados() {
+      let qtd = parseInt(document.getElementById("quantidade").value);
+      let lados = parseInt(document.getElementById("tipoDado").value);
+      let resultados = [];
+      let soma = 0;
+
+      for (let i = 0; i < qtd; i++) {
+        let valor = Math.floor(Math.random() * lados) + 1;
+        resultados.push(valor);
+        soma += valor;
+      }
+
+      let textoResultado =
+        "🎲 " + qtd + "d" + lados + " → [" + resultados.join(", ") + "] (Total: " + soma + ")";
+
+      // Mostra no resultado principal
+      document.getElementById("resultado").innerText = textoResultado;
+
+      // Adiciona ao histórico
+      let historico = document.getElementById("historico");
+      let item = document.createElement("li");
+      item.innerText = textoResultado;
+      historico.appendChild(item);
+    }
+
+    function limparHistorico() {
+      document.getElementById("historico").innerHTML = "";
+      document.getElementById("resultado").innerText = "";
+    }
+  </script>
+</body>
+</html>
+
+<div class="ficha">
+  <label>Nome:</label>
+  <input type="text" id="nome" placeholder="Seu personagem">
+
+  <label>Raça:</label>
+  <input type="text" id="raca" placeholder="Ex: Humano">
+
+  <label>Classe:</label>
+  <input type="text" id="classe" placeholder="Ex: Guerreiro">
+
+  <h3>Perícias:</h3>
+  <div id="periciasContainer"></div>
+  <button onclick="adicionarPericia()">Adicionar Perícia</button>
+
+  <button onclick="salvarFicha()">Salvar Ficha</button>
+  <button onclick="carregarFicha()">Carregar Ficha</button>
+  <button onclick="limparFicha()">Limpar Ficha</button>
+</div>
+
+<script>
+function adicionarPericia(nome='', valor='') {
+  const container = document.getElementById('periciasContainer');
+  const div = document.createElement('div');
+  div.innerHTML = `
+    <input type="text" placeholder="Nome da perícia" value="${nome}">
+    <input type="number" placeholder="Valor" value="${valor}">
+    <button onclick="removerPericia(this)">X</button>
+  `;
+  container.appendChild(div);
+}
+
+function removerPericia(botao) {
+  botao.parentElement.remove();
+}
+
+function salvarFicha() {
+  const pericias = [];
+  document.querySelectorAll('#periciasContainer div').forEach(div => {
+    const nome = div.children[0].value;
+    const valor = div.children[1].value;
+    if(nome) pericias.push({nome, valor});
+  });
+
+  const ficha = {
+    nome: document.getElementById('nome').value,
+    raca: document.getElementById('raca').value,
+    classe: document.getElementById('classe').value,
+    pericias: pericias
+  };
+
+  localStorage.setItem('fichaPersonagem', JSON.stringify(ficha));
+  alert('Ficha salva com sucesso!');
+}
+
+function carregarFicha() {
+  const ficha = JSON.parse(localStorage.getItem('fichaPersonagem'));
+  if (!ficha) { alert('Nenhuma ficha encontrada.'); return; }
+
+  document.getElementById('nome').value = ficha.nome;
+  document.getElementById('raca').value = ficha.raca;
+  document.getElementById('classe').value = ficha.classe;
+
+  document.getElementById('periciasContainer').innerHTML = '';
+  ficha.pericias.forEach(p => adicionarPericia(p.nome, p.valor));
+
+  alert('Ficha carregada!');
+}
+
+function limparFicha() {
+  document.getElementById('nome').value = '';
+  document.getElementById('raca').value = '';
+  document.getElementById('classe').value = '';
+  document.getElementById('periciasContainer').innerHTML = '';
+  localStorage.removeItem('fichaPersonagem');
+  alert('Ficha limpa!');
+}
+</script>
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ficha de Personagem RPG</title>
+<style>
+  body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
+  .container { max-width: 400px; margin: 20px auto; padding: 20px; border-radius: 15px; transition: background 0.3s, color 0.3s; }
+  h1 { text-align: center; }
+  label { display: block; margin-top: 10px; }
+  input[type="text"], input[type="number"] {
+    width: 100%; padding: 5px; margin: 5px 0 10px 0; border-radius: 5px; border: 1px solid #aaa; box-sizing: border-box;
+  }
+  button { width: 100%; padding: 10px; margin: 5px 0; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+  button:hover { opacity: 0.9; }
+  .barra-container { background: #444; border-radius: 10px; overflow: hidden; margin: 5px 0 15px 0; height: 20px; }
+  .barra { height: 100%; text-align: right; padding-right: 5px; box-sizing: border-box; font-weight: bold; color: #000; }
+  #periciasContainer div { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+  .icon { width: 20px; height: 20px; display: inline-block; background-size: cover; vertical-align: middle; }
+  .espada { background-image: url('https://i.imgur.com/Pl2dYIz.png'); }
+  .escudo { background-image: url('https://i.imgur.com/0YHkX8O.png'); }
+  .arma { background-image: url('https://i.imgur.com/6NfD5C0.png'); }
+  body.dark { background: #1c1c1c; color: #f0f0f0; }
+  body.dark .container { background: #2c2c2c; }
+  body.dark button { background: #8000ff; color: #fff; }
+  body.dark input { background: #333; color: #fff; border: 1px solid #555; }
+  body.light { background: #fff; color: #000; }
+  body.light .container { background: #f8f8f8; }
+  body.light button { background: #ff0000; color: #fff; }
+  body.light input { background: #fff; color: #000; border: 1px solid #ccc; }
+</style>
+</head>
+<body class="dark">
+
+<h1>Ficha de Personagem <span class="icon espada"></span></h1>
+
+<div class="container">
+  <button onclick="alternarModo()">Alternar Modo</button>
+
+  <label>Nome:</label>
+  <input type="text" id="nome" placeholder="Seu personagem">
+
+  <label>Raça:</label>
+  <input type="text" id="raca" placeholder="Ex: Humano">
+
+  <label>Classe:</label>
+  <input type="text" id="classe" placeholder="Ex: Guerreiro">
+
+  <h3>Recursos <span class="icon escudo"></span></h3>
+  <label>Vida (HP):</label>
+  <div class="barra-container"><div id="barraVida" class="barra" style="background:#ff0000;">0</div></div>
+  <input type="number" id="vida" value="0" oninput="atualizarBarra('vida','barraVida')">
+
+  <label>Estamina:</label>
+  <div class="barra-container"><div id="barraEstamina" class="barra" style="background:#00ff00;">0</div></div>
+  <input type="number" id="estamina" value="0" oninput="atualizarBarra('estamina','barraEstamina')">
+
+  <label>XP:</label>
+  <div class="barra-container"><div id="barraXP" class="barra" style="background:#00ccff;">0</div></div>
+  <input type="number" id="xp" value="0" oninput="atualizarBarra('xp','barraXP')">
+
+  <label>PE (Ponto de Esforço):</label>
+  <div class="barra-container"><div id="barraPE" class="barra" style="background:#ffcc00;">0</div></div>
+  <input type="number" id="pe" value="0" oninput="atualizarBarra('pe','barraPE')">
+
+  <h3>Perícias <span class="icon arma"></span></h3>
+  <div id="periciasContainer"></div>
+  <button onclick="adicionarPericia()">Adicionar Perícia</button>
+
+  <button onclick="salvarFicha()">Salvar Ficha</button>
+  <button onclick="carregarFicha()">Carregar Ficha</button>
+  <button onclick="limparFicha()">Limpar Ficha</button>
+</div>
+
+<script>
+function alternarModo() { document.body.classList.toggle('dark'); document.body.classList.toggle('light'); }
+
+function atualizarBarra(campo, barraId) {
+  const valor = document.getElementById(campo).value;
+  const barra = document.getElementById(barraId);
+  barra.style.width = Math.min(valor, 100) + '%';
+  barra.textContent = valor;
+}
+
+function adicionarPericia(nome='', valor='') {
+  const container = document.getElementById('periciasContainer');
+  const div = document.createElement('div');
+  div.innerHTML = `
+    <input type="text" placeholder="Nome da perícia" value="${nome}">
+    <input type="number" placeholder="Valor" value="${valor}" oninput="atualizarBarraPericia(this)">
+    <div class="barra-container" style="flex:1;"><div class="barra" style="width:${valor}%">${valor}</div></div>
+    <button onclick="removerPericia(this)">X</button>
+  `;
+  container.appendChild(div);
+}
+
+function atualizarBarraPericia(input) {
+  const valor = input.value;
+  const barra = input.nextElementSibling.firstElementChild;
+  barra.style.width = Math.min(valor, 100) + '%';
+  barra.textContent = valor;
+}
+
+function removerPericia(botao) { botao.parentElement.remove(); }
+
+function salvarFicha() {
+  const pericias = [];
+  document.querySelectorAll('#periciasContainer div').forEach(div => {
+    const nome = div.children[0].value;
+    const valor = div.children[1].value;
+    if(nome) pericias.push({nome, valor});
+  });
+
+  const ficha = {
+    nome: document.getElementById('nome').value,
+    raca: document.getElementById('raca').value,
+    classe: document.getElementById('classe').value,
+    vida: document.getElementById('vida').value,
+    estamina: document.getElementById('estamina').value,
+    xp: document.getElementById('xp').value,
+    pe: document.getElementById('pe').value,
+    pericias: pericias
+  };
+
+  localStorage.setItem('fichaPersonagem', JSON.stringify(ficha));
+  alert('Ficha salva com sucesso!');
+}
+
+function carregarFicha() {
+  const ficha = JSON.parse(localStorage.getItem('fichaPersonagem'));
+  if (!ficha) { alert('Nenhuma ficha encontrada.'); return; }
+
+  document.getElementById('nome').value = ficha.nome;
+  document.getElementById('raca').value = ficha.raca;
+  document.getElementById('classe').value = ficha.classe;
+  document.getElementById('vida').value = ficha.vida;
+  document.getElementById('estamina').value = ficha.estamina;
+  document.getElementById('xp').value = ficha.xp;
+  document.getElementById('pe').value = ficha.pe;
+
+  atualizarBarra('vida','barraVida');
+  atualizarBarra('estamina','barraEstamina');
+  atualizarBarra('xp','barraXP');
+  atualizarBarra('pe','barraPE');
+
+  document.getElementById('periciasContainer').innerHTML = '';
+  ficha.pericias.forEach(p => adicionarPericia(p.nome, p.valor));
+
+  alert('Ficha carregada!');
+}
+
+function limparFicha() {
+  document.getElementById('nome').value = '';
+  document.getElementById('raca').value = '';
+  document.getElementById('classe').value = '';
+  document.getElementById('vida').value = 0;
+  document.getElementById('estamina').value = 0;
+  document.getElementById('xp').value = 0;
+  document.getElementById('pe').value = 0;
+
+  atualizarBarra('vida','barraVida');
+  atualizarBarra('estamina','barraEstamina');
+  atualizarBarra('xp','barraXP');
+  atualizarBarra('pe','barraPE');
+
+  document.getElementById('periciasContainer').innerHTML = '';
+  localStorage.removeItem('fichaPersonagem');
+  alert('Ficha limpa!');
+}
+</script>
+
+</body>
+</html>
+
+
+<div class="container">
+  <label>Escolha sua cor:</label>
+  <input type="color" id="corJogador" value="#ffcc00" style="width:100%; padding:5px; margin-bottom:10px; border-radius:5px; border:1px solid #aaa;">
+
+  <div id="chatContainer" style="background:#333; padding:10px; border-radius:10px; height:200px; overflow-y:auto; margin-bottom:10px; border:2px solid #8000ff;"></div>
+
+  <input type="text" id="chatInput" placeholder="Digite sua anotação" style="width:100%; padding:5px; margin-bottom:5px; border-radius:5px; border:1px solid #aaa;">
+  <button onclick="adicionarMensagem()">Adicionar Anotação</button>
+  <button onclick="limparChat()">Limpar Anotações</button>
+</div>
+
+<script>
+function adicionarMensagem() {
+  const input = document.getElementById('chatInput');
+  const texto = input.value.trim();
+  if(!texto) return;
+
+  const cor = document.getElementById('corJogador').value;
+  const container = document.getElementById('chatContainer');
+
+  const agora = new Date();
+  const hora = agora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+  
+  // Criar objeto da mensagem
+  const mensagemObj = {texto, cor, hora};
+  
+  // Adicionar ao container
+  criarElementoMensagem(mensagemObj, container);
+
+  // Salvar no localStorage
+  salvarChat();
+
+  input.value = '';
+}
+
+// Cria o elemento visual da mensagem
+function criarElementoMensagem(mensagemObj, container) {
+  const p = document.createElement('p');
+  p.textContent = [${mensagemObj.hora}] ${mensagemObj.texto};
+  p.style.background = "#222";
+  p.style.padding = "5px";
+  p.style.borderLeft = 5px solid ${mensagemObj.cor};
+  p.style.borderRadius = "5px";
+  p.style.marginBottom = "5px";
+  container.appendChild(p);
+  container.scrollTop = container.scrollHeight;
+}
+
+// Salvar mensagens no localStorage
+function salvarChat() {
+  const mensagens = [];
+  document.querySelectorAll('#chatContainer p').forEach(p => {
+    // Extrair dados da borda e texto
+    const cor = p.style.borderLeftColor || "#ffcc00";
+    const textoCompleto = p.textContent;
+    // Separar hora e texto
+    const match = textoCompleto.match(/^\[(.?)\] (.)$/);
+    if(match) {
+      mensagens.push({hora: match[1], texto: match[2], cor});
+    }
+  });
+  localStorage.setItem('chatRPG', JSON.stringify(mensagens));
+}
+
+// Carregar mensagens do localStorage
+function carregarChat() {
+  const mensagens = JSON.parse(localStorage.getItem('chatRPG')) || [];
+  const container = document.getElementById('chatContainer');
+  container.innerHTML = '';
+  mensagens.forEach(msg => criarElementoMensagem(msg, container));
+}
+
+// Limpar chat
+function limparChat() {
+  if(confirm("Deseja realmente limpar todas as anotações?")) {
+    document.getElementById('chatContainer').innerHTML = '';
+    localStorage.removeItem('chatRPG');
+  }
+}
+
+// Carregar chat ao iniciar
+carregarChat();
+</script>
