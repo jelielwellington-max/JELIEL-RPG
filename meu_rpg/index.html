@@ -11,13 +11,6 @@
 </html>
 
 
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-</head>
-<body>
-  <h1>Bem-vindo ao meu RPG!</h1>
 
   <h2>Rolar Dados</h2>
   <label>Quantidade: </label>
@@ -156,7 +149,6 @@ function limparFicha() {
 </script>
 
 
-<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -325,92 +317,56 @@ function limparFicha() {
   localStorage.removeItem('fichaPersonagem');
   alert('Ficha limpa!');
 }
-</script>
-
-</body>
-</html>
-
-
-<div class="container">
-  <label>Escolha sua cor:</label>
-  <input type="color" id="corJogador" value="#ffcc00" style="width:100%; padding:5px; margin-bottom:10px; border-radius:5px; border:1px solid #aaa;">
-
-  <div id="chatContainer" style="background:#333; padding:10px; border-radius:10px; height:200px; overflow-y:auto; margin-bottom:10px; border:2px solid #8000ff;"></div>
-
-  <input type="text" id="chatInput" placeholder="Digite sua anotação" style="width:100%; padding:5px; margin-bottom:5px; border-radius:5px; border:1px solid #aaa;">
-  <button onclick="adicionarMensagem()">Adicionar Anotação</button>
-  <button onclick="limparChat()">Limpar Anotações</button>
-</div>
-
-<script>
 function adicionarMensagem() {
   const input = document.getElementById('chatInput');
   const texto = input.value.trim();
   if(!texto) return;
-
   const cor = document.getElementById('corJogador').value;
   const container = document.getElementById('chatContainer');
-
   const agora = new Date();
   const hora = agora.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-  
-  // Criar objeto da mensagem
   const mensagemObj = {texto, cor, hora};
-  
-  // Adicionar ao container
   criarElementoMensagem(mensagemObj, container);
-
-  // Salvar no localStorage
   salvarChat();
-
   input.value = '';
 }
-
-// Cria o elemento visual da mensagem
 function criarElementoMensagem(mensagemObj, container) {
   const p = document.createElement('p');
-  p.textContent = [${mensagemObj.hora}] ${mensagemObj.texto};
+  p.textContent = `[${mensagemObj.hora}] ${mensagemObj.texto}`;
   p.style.background = "#222";
   p.style.padding = "5px";
-  p.style.borderLeft = 5px solid ${mensagemObj.cor};
+  p.style.borderLeft = `5px solid ${mensagemObj.cor}`;
   p.style.borderRadius = "5px";
   p.style.marginBottom = "5px";
   container.appendChild(p);
   container.scrollTop = container.scrollHeight;
 }
-
-// Salvar mensagens no localStorage
 function salvarChat() {
   const mensagens = [];
   document.querySelectorAll('#chatContainer p').forEach(p => {
-    // Extrair dados da borda e texto
     const cor = p.style.borderLeftColor || "#ffcc00";
     const textoCompleto = p.textContent;
-    // Separar hora e texto
-    const match = textoCompleto.match(/^\[(.?)\] (.)$/);
+    const match = textoCompleto.match(/^\[(.*?)\]\s(.+)$/);
     if(match) {
       mensagens.push({hora: match[1], texto: match[2], cor});
     }
   });
   localStorage.setItem('chatRPG', JSON.stringify(mensagens));
 }
-
-// Carregar mensagens do localStorage
 function carregarChat() {
   const mensagens = JSON.parse(localStorage.getItem('chatRPG')) || [];
   const container = document.getElementById('chatContainer');
   container.innerHTML = '';
   mensagens.forEach(msg => criarElementoMensagem(msg, container));
 }
-
-// Limpar chat
 function limparChat() {
   if(confirm("Deseja realmente limpar todas as anotações?")) {
     document.getElementById('chatContainer').innerHTML = '';
     localStorage.removeItem('chatRPG');
   }
 }
-
-// Carregar chat ao iniciar
 carregarChat();
 </script>
+
+</body>
+</html>
